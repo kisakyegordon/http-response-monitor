@@ -33,6 +33,7 @@ describe("HTTP responses API", () => {
   });
 
   it("returns 500 when fetching responses fails", async () => {
+    jest.spyOn(console, "error").mockImplementation(() => {});
     getHttpResponses.mockRejectedValue(new Error("DB failed"));
 
     const response = await request(app).get("/api/responses");
@@ -40,5 +41,7 @@ describe("HTTP responses API", () => {
     expect(response.statusCode).toBe(500);
     expect(response.body.success).toBe(false);
     expect(response.body.message).toBe("Failed to fetch HTTP responses");
+
+    console.error.mockRestore();
   });
 });
