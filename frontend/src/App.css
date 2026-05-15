@@ -181,7 +181,6 @@ td {
   }
 }
 
-
 .chart-card {
   margin-bottom: 24px;
 }
@@ -189,4 +188,24 @@ td {
 .chart-wrapper {
   width: 100%;
   height: 280px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.filters button {
+  background: #eef2f7;
+  color: #172033;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14px;
+}
+
+.filters button.active-filter {
+  background: #172033;
+  color: #ffffff;
 }

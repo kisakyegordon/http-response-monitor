@@ -18,6 +18,7 @@ function App() {
   const [health, setHealth] = useState(null);
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
   const [error, setError] = useState("");
 
   async function fetchResponses() {
@@ -84,6 +85,13 @@ function App() {
     time: new Date(item.created_at).toLocaleTimeString(),
     latency: item.response_time_ms,
   }));
+
+  const filteredResponses = responses.filter((response) => {
+    if (filter === "success") return response.status_code < 400;
+    if (filter === "error") return response.status_code >= 400;
+    if (filter === "anomaly") return response.is_anomaly;
+    return true;
+  });
 
   return (
     <main className="app-shell">
@@ -153,9 +161,39 @@ function App() {
           <span>{responses.length} records</span>
         </div>
 
+        <div className="filters">
+          <button
+            className={filter === "all" ? "active-filter" : ""}
+            onClick={() => setFilter("all")}
+          >
+            All
+          </button>
+
+          <button
+            className={filter === "success" ? "active-filter" : ""}
+            onClick={() => setFilter("success")}
+          >
+            Success
+          </button>
+
+          <button
+            className={filter === "error" ? "active-filter" : ""}
+            onClick={() => setFilter("error")}
+          >
+            Errors
+          </button>
+
+          <button
+            className={filter === "anomaly" ? "active-filter" : ""}
+            onClick={() => setFilter("anomaly")}
+          >
+            Anomalies
+          </button>
+        </div>
+
         {loading ? (
           <p>Loading responses...</p>
-        ) : responses.length === 0 ? (
+        ) : filteredResponses.length === 0 ? (
           <p>No responses recorded yet. Run a manual ping to create one.</p>
         ) : (
           <div className="table-wrapper">
@@ -172,7 +210,7 @@ function App() {
               </thead>
 
               <tbody>
-                {responses.map((response) => (
+                {filteredResponses.map((response) => (
                   <tr key={response.id}>
                     <td>{new Date(response.created_at).toLocaleString()}</td>
                     <td>
