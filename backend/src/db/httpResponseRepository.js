@@ -6,6 +6,8 @@ async function saveHttpResponse({
   statusCode,
   responseTimeMs,
   endpoint,
+  isAnomaly,
+  anomalyReason,
 }) {
   const query = `
     INSERT INTO http_responses (
