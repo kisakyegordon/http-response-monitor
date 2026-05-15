@@ -5,6 +5,8 @@ const { Server } = require("socket.io");
 
 const app = require("./app");
 const initDb = require("./db/initDb");
+const { initSocket } = require("./sockets/socketManager");
+const startHttpMonitorScheduler = require("./scheduler/httpMonitorScheduler");
 
 const PORT = process.env.PORT || 4000;
 
@@ -17,17 +19,12 @@ const io = new Server(server, {
   }
 });
 
-io.on("connection", (socket) => {
-  console.log(`Client connected: ${socket.id}`);
-
-  socket.on("disconnect", () => {
-    console.log(`Client disconnected: ${socket.id}`);
-  });
-});
-
 async function startServer() {
     try {
         await initDb();
+
+        initSocket(io);
+        startHttpMonitorScheduler();
 
         server.listen(PORT, () => { 
             console.log(`Server running on port ${PORT}`);
@@ -37,7 +34,6 @@ async function startServer() {
         process.exit(1);
 
     }
-    
 }
 
 startServer();
