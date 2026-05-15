@@ -1,6 +1,7 @@
 const axios = require("axios");
 const generatePayload = require("../utils/generatePayload");
 const { saveHttpResponse } = require("../db/httpResponseRepository");
+const { detectAnomaly } = require("./anomalyService");
 
 async function pingHttpBin() {
   const endpoint = process.env.HTTPBIN_URL;
@@ -11,6 +12,7 @@ async function pingHttpBin() {
   try {
     const response = await axios.post(endpoint, requestPayload);
     const responseTimeMs = Date.now() - start;
+    const anomalyResult = await detectAnomaly(responseTimeMs);
 
     const savedRecord = await saveHttpResponse({
       requestPayload,
@@ -18,11 +20,14 @@ async function pingHttpBin() {
       statusCode: response.status,
       responseTimeMs,
       endpoint,
+      isAnomaly: anomalyResult.isAnomaly,
+      anomalyReason: anomalyResult.anomalyReason,
     });
 
     return savedRecord;
   } catch (error) {
     const responseTimeMs = Date.now() - start;
+    const anomalyResult = await detectAnomaly(responseTimeMs);
 
     const savedErrorRecord = await saveHttpResponse({
       requestPayload,
@@ -33,6 +38,8 @@ async function pingHttpBin() {
       statusCode: error.response?.status || 500,
       responseTimeMs,
       endpoint,
+      isAnomaly: anomalyResult.isAnomaly,
+      anomalyReason: anomalyResult.anomalyReason,
     });
 
     return savedErrorRecord;

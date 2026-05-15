@@ -13,9 +13,11 @@ async function saveHttpResponse({
       response_payload,
       status_code,
       response_time_ms,
-      endpoint
+      endpoint,
+      is_anomaly,
+      anomaly_reason
     )
-    VALUES ($1, $2, $3, $4, $5)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING *;
   `;
 
@@ -25,6 +27,8 @@ async function saveHttpResponse({
     statusCode,
     responseTimeMs,
     endpoint,
+    isAnomaly,
+    anomalyReason,
   ];
 
   const result = await pool.query(query, values);
@@ -45,7 +49,22 @@ async function getHttpResponses(limit = 50) {
   return result.rows;
 }
 
+async function getRecentResponseTimes(limit = 25) {
+  const result = await pool.query(
+    `
+    SELECT response_time_ms
+    FROM http_responses
+    ORDER BY created_at DESC
+    LIMIT $1;
+    `,
+    [limit],
+  );
+
+  return result.rows.map((row) => row.response_time_ms);
+}
+
 module.exports = {
   saveHttpResponse,
   getHttpResponses,
+  getRecentResponseTimes,
 };

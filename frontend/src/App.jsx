@@ -86,6 +86,7 @@ function App() {
                   <th>Time</th>
                   <th>Status</th>
                   <th>Latency</th>
+                  <th>Anomaly</th>
                   <th>Endpoint</th>
                   <th>Request ID</th>
                 </tr>
@@ -107,6 +108,16 @@ function App() {
                       </span>
                     </td>
                     <td>{response.response_time_ms} ms</td>
+                    <td>
+                      {response.is_anomaly ? (
+                        <span className="badge danger">Anomaly</span>
+                      ) : (
+                        <span className="badge success">Normal</span>
+                      )}
+                      {response.anomaly_reason && (
+                        <div className="muted">{response.anomaly_reason}</div>
+                      )}
+                    </td>
                     <td>{response.endpoint}</td>
                     <td>{response.request_payload?.requestId || "N/A"}</td>
                   </tr>
