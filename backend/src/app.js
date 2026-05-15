@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const dbRoutes = require("./routes/dbRoutes");
 
 const app = express();
 
@@ -12,5 +13,7 @@ app.get("/health", (req, res) => {
     message: "Backend is healthy",
   });
 });
+
+app.use("/api", dbRoutes);
 
 module.exports = app;
