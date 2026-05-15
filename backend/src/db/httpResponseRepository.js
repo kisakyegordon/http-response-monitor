@@ -6,8 +6,13 @@ async function saveHttpResponse({
   statusCode,
   responseTimeMs,
   endpoint,
-  isAnomaly,
-  anomalyReason,
+  isAnomaly = false,
+  anomalyReason = null,
+  rollingMeanMs = null,
+  rollingStdDevMs = null,
+  predictedResponseTimeMs = null,
+  upperBoundMs = null,
+  lowerBoundMs = null,
 }) {
   const query = `
     INSERT INTO http_responses (
@@ -17,9 +22,14 @@ async function saveHttpResponse({
       response_time_ms,
       endpoint,
       is_anomaly,
-      anomaly_reason
+      anomaly_reason,
+      rolling_mean_ms,
+      rolling_std_dev_ms,
+      predicted_response_time_ms,
+      upper_bound_ms,
+      lower_bound_ms
     )
-    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
     RETURNING *;
   `;
 
@@ -31,6 +41,11 @@ async function saveHttpResponse({
     endpoint,
     isAnomaly,
     anomalyReason,
+    rollingMeanMs,
+    rollingStdDevMs,
+    predictedResponseTimeMs,
+    upperBoundMs,
+    lowerBoundMs,
   ];
 
   const result = await pool.query(query, values);
@@ -65,8 +80,20 @@ async function getRecentResponseTimes(limit = 25) {
   return result.rows.map((row) => row.response_time_ms);
 }
 
+async function getResponseTimesFromLast24Hours() {
+  const result = await pool.query(`
+    SELECT response_time_ms
+    FROM http_responses
+    WHERE created_at >= NOW() - INTERVAL '24 hours'
+    ORDER BY created_at ASC;
+  `);
+
+  return result.rows.map((row) => row.response_time_ms);
+}
+
 module.exports = {
   saveHttpResponse,
   getHttpResponses,
   getRecentResponseTimes,
+  getResponseTimesFromLast24Hours
 };

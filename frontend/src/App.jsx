@@ -8,6 +8,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
+  ReferenceDot,
 } from "recharts";
 import "./App.css";
 
@@ -83,9 +84,16 @@ function App() {
 
   const anomalyCount = responses.filter((item) => item.is_anomaly).length;
 
+  const latestAnomaly = responses.find((item) => item.is_anomaly);
+
   const chartData = [...responses].reverse().map((item) => ({
     time: new Date(item.created_at).toLocaleTimeString(),
     latency: item.response_time_ms,
+    rollingMean: item.rolling_mean_ms,
+    predicted: item.predicted_response_time_ms,
+    upperBound: item.upper_bound_ms,
+    lowerBound: item.lower_bound_ms,
+    isAnomaly: item.is_anomaly,
   }));
 
   const filteredResponses = responses.filter((response) => {
@@ -136,6 +144,12 @@ function App() {
           <span>Response time over recent checks</span>
         </div>
 
+        {latestAnomaly && (
+          <div className="alert warning">
+            Latest anomaly detected: {latestAnomaly.anomaly_reason}
+          </div>
+        )}
+
         {chartData.length === 0 ? (
           <p>No chart data available yet.</p>
         ) : (
@@ -145,12 +159,53 @@ function App() {
                 <XAxis dataKey="time" />
                 <YAxis />
                 <Tooltip />
+
                 <Line
                   type="monotone"
                   dataKey="latency"
+                  name="Actual Latency"
                   strokeWidth={2}
                   dot={false}
                 />
+
+                <Line
+                  type="monotone"
+                  dataKey="rollingMean"
+                  name="Rolling Average"
+                  strokeWidth={2}
+                  dot={false}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="predicted"
+                  name="Predicted Next"
+                  strokeWidth={2}
+                  dot={false}
+                  strokeDasharray="5 5"
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="upperBound"
+                  name="Upper Bound"
+                  strokeWidth={1}
+                  dot={false}
+                  strokeDasharray="3 3"
+                />
+
+                {chartData.map((point, index) =>
+                  point.isAnomaly ? (
+                    <ReferenceDot
+                      key={index}
+                      x={point.time}
+                      y={point.latency}
+                      r={6}
+                      fill="#b74545ff"
+                      stroke="#7c2d2d"
+                    />
+                  ) : null,
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -223,6 +278,9 @@ function App() {
                   <th>Anomaly</th>
                   <th>Endpoint</th>
                   <th>Request ID</th>
+                  <th>Rolling Avg</th>
+                  <th>Predicted</th>
+                  <th>Upper Bound</th>
                 </tr>
               </thead>
 
@@ -254,6 +312,9 @@ function App() {
                     </td>
                     <td>{response.endpoint}</td>
                     <td>{response.request_payload?.requestId || "N/A"}</td>
+                    <td>{response.rolling_mean_ms ?? "N/A"} ms</td>
+                    <td>{response.predicted_response_time_ms ?? "N/A"} ms</td>
+                    <td>{response.upper_bound_ms ?? "N/A"} ms</td>
                   </tr>
                 ))}
               </tbody>

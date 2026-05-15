@@ -1,4 +1,4 @@
-const { getRecentResponseTimes } = require("../db/httpResponseRepository");
+const { getResponseTimesFromLast24Hours } = require("../db/httpResponseRepository");
 
 function calculateAverage(values) {
   if (!values.length) return 0;
@@ -15,37 +15,55 @@ function calculateStandardDeviation(values, average) {
   return Math.sqrt(variance);
 }
 
+function predictNextResponseTime(values) {
+  if (!values.length) return null;
+
+  const recentValues = values.slice(-5);
+  return Math.round(calculateAverage(recentValues));
+}
+
 async function detectAnomaly(responseTimeMs) {
-  const recentTimes = await getRecentResponseTimes(25);
+  const recentTimes = await getResponseTimesFromLast24Hours();
 
   if (recentTimes.length < 5) {
     return {
       isAnomaly: false,
-      anomalyReason: null
+      anomalyReason: null,
+      rollingMeanMs: null,
+      rollingStdDevMs: null,
+      predictedResponseTimeMs: predictNextResponseTime(recentTimes),
+      upperBoundMs: null,
+      lowerBoundMs: null
     };
   }
 
-  const average = calculateAverage(recentTimes);
-  const stdDev = calculateStandardDeviation(recentTimes, average);
-  const threshold = average + 2 * stdDev;
+  const mean = calculateAverage(recentTimes);
+  const stdDev = calculateStandardDeviation(recentTimes, mean);
 
-  if (responseTimeMs > threshold) {
-    return {
-      isAnomaly: true,
-      anomalyReason: `Response time ${responseTimeMs}ms exceeded threshold ${Math.round(
-        threshold
-      )}ms`
-    };
-  }
+  const upperBound = mean + 2 * stdDev;
+  const lowerBound = Math.max(0, mean - 2 * stdDev);
+  const predicted = predictNextResponseTime(recentTimes);
+
+  const isAnomaly = responseTimeMs > upperBound;
 
   return {
-    isAnomaly: false,
-    anomalyReason: null
+    isAnomaly,
+    anomalyReason: isAnomaly
+      ? `Response time ${responseTimeMs}ms exceeded upper bound ${Math.round(
+          upperBound
+        )}ms`
+      : null,
+    rollingMeanMs: Math.round(mean),
+    rollingStdDevMs: Math.round(stdDev),
+    predictedResponseTimeMs: predicted,
+    upperBoundMs: Math.round(upperBound),
+    lowerBoundMs: Math.round(lowerBound)
   };
 }
 
 module.exports = {
   detectAnomaly,
   calculateAverage,
-  calculateStandardDeviation
+  calculateStandardDeviation,
+  predictNextResponseTime
 };

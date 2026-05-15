@@ -22,6 +22,11 @@ async function pingHttpBin() {
       endpoint,
       isAnomaly: anomalyResult.isAnomaly,
       anomalyReason: anomalyResult.anomalyReason,
+      rollingMeanMs: anomalyResult.rollingMeanMs,
+      rollingStdDevMs: anomalyResult.rollingStdDevMs,
+      predictedResponseTimeMs: anomalyResult.predictedResponseTimeMs,
+      upperBoundMs: anomalyResult.upperBoundMs,
+      lowerBoundMs: anomalyResult.lowerBoundMs,
     });
 
     return savedRecord;
@@ -40,6 +45,11 @@ async function pingHttpBin() {
       endpoint,
       isAnomaly: anomalyResult.isAnomaly,
       anomalyReason: anomalyResult.anomalyReason,
+      rollingMeanMs: anomalyResult.rollingMeanMs,
+      rollingStdDevMs: anomalyResult.rollingStdDevMs,
+      predictedResponseTimeMs: anomalyResult.predictedResponseTimeMs,
+      upperBoundMs: anomalyResult.upperBoundMs,
+      lowerBoundMs: anomalyResult.lowerBoundMs,
     });
 
     return savedErrorRecord;

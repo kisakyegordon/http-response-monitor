@@ -227,3 +227,7 @@ td {
   border: 1px solid #d0d7de;
   border-radius: 8px;
 }
+.warning {
+  background: #fff3bf;
+  color: #8a5a00;
+}
