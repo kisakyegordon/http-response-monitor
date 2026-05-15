@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import "./App.css";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -72,6 +80,11 @@ function App() {
 
   const anomalyCount = responses.filter((item) => item.is_anomaly).length;
 
+  const chartData = [...responses].reverse().map((item) => ({
+    time: new Date(item.created_at).toLocaleTimeString(),
+    latency: item.response_time_ms,
+  }));
+
   return (
     <main className="app-shell">
       <section className="hero">
@@ -103,6 +116,33 @@ function App() {
           <span>Anomalies</span>
           <strong>{anomalyCount}</strong>
         </div>
+      </section>
+
+      <section className="card chart-card">
+        <div className="card-header">
+          <h2>Latency Trend</h2>
+          <span>Response time over recent checks</span>
+        </div>
+
+        {chartData.length === 0 ? (
+          <p>No chart data available yet.</p>
+        ) : (
+          <div className="chart-wrapper">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <XAxis dataKey="time" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="latency"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </section>
 
       {error && <div className="alert error">{error}</div>}

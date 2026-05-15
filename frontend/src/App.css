@@ -180,3 +180,13 @@ td {
     grid-template-columns: 1fr;
   }
 }
+
+
+.chart-card {
+  margin-bottom: 24px;
+}
+
+.chart-wrapper {
+  width: 100%;
+  height: 280px;
+}
