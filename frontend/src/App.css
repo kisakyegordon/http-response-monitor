@@ -209,3 +209,21 @@ td {
   background: #172033;
   color: #ffffff;
 }
+
+.row-limit-control {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.row-limit-control label {
+  color: #5b6475;
+  font-size: 14px;
+}
+
+.row-limit-control select {
+  margin-left: 8px;
+  padding: 6px 10px;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+}

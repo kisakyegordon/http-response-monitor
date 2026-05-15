@@ -17,6 +17,7 @@ function App() {
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const [visibleRows, setVisibleRows] = useState(10);
   const [error, setError] = useState("");
 
   async function triggerManualPing() {
@@ -93,6 +94,8 @@ function App() {
     if (filter === "anomaly") return response.is_anomaly;
     return true;
   });
+
+  const visibleResponses = filteredResponses.slice(0, visibleRows);
 
   return (
     <main className="app-shell">
@@ -198,6 +201,19 @@ function App() {
           <p>No responses recorded yet. Run a manual ping to create one.</p>
         ) : (
           <div className="table-wrapper">
+            <div className="row-limit-control">
+              <label>
+                Show rows:
+                <select
+                  value={visibleRows}
+                  onChange={(e) => setVisibleRows(Number(e.target.value))}
+                >
+                  <option value={10}>10</option>
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                </select>
+              </label>
+            </div>
             <table>
               <thead>
                 <tr>
@@ -211,7 +227,7 @@ function App() {
               </thead>
 
               <tbody>
-                {filteredResponses.map((response) => (
+                {visibleResponses.map((response) => (
                   <tr key={response.id}>
                     <td>{new Date(response.created_at).toLocaleString()}</td>
                     <td>

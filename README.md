@@ -139,7 +139,7 @@ npm run migrate
 cd backend
 npm install
 cp .env.example .env
-npm run dev
+npm run dev -> ( On intial run, databse migrations will be run)
 ```
 
 Backend runs on:
