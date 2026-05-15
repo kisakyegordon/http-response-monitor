@@ -1,17 +1,22 @@
 jest.mock("axios");
+
 jest.mock("../db/httpResponseRepository", () => ({
   saveHttpResponse: jest.fn(),
-  getRecentResponseTimes: jest.fn().mockResolvedValue([]),
+  getResponseTimesFromLast24Hours: jest.fn().mockResolvedValue([]),
 }));
 
 const axios = require("axios");
-const { saveHttpResponse } = require("../db/httpResponseRepository");
+const {
+  saveHttpResponse,
+  getResponseTimesFromLast24Hours,
+} = require("../db/httpResponseRepository");
 const { pingHttpBin } = require("../services/httpMonitorService");
 
 describe("HTTP monitor service", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env.HTTPBIN_URL = "https://httpbin.org/anything";
+    getResponseTimesFromLast24Hours.mockResolvedValue([]);
   });
 
   it("pings HTTPBin and saves successful response", async () => {
@@ -27,8 +32,22 @@ describe("HTTP monitor service", () => {
 
     const result = await pingHttpBin();
 
-    expect(axios.post).toHaveBeenCalled();
-    expect(saveHttpResponse).toHaveBeenCalled();
+    expect(axios.post).toHaveBeenCalledWith(
+      "https://httpbin.org/anything",
+      expect.objectContaining({
+        source: "http-response-monitor",
+      })
+    );
+
+    expect(saveHttpResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 200,
+        responsePayload: { ok: true },
+        endpoint: "https://httpbin.org/anything",
+        isAnomaly: false,
+      })
+    );
+
     expect(result.id).toBe(1);
   });
 
@@ -42,7 +61,16 @@ describe("HTTP monitor service", () => {
 
     const result = await pingHttpBin();
 
-    expect(saveHttpResponse).toHaveBeenCalled();
+    expect(saveHttpResponse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: 500,
+        responsePayload: expect.objectContaining({
+          message: "Network failed",
+        }),
+        isAnomaly: false,
+      })
+    );
+
     expect(result.id).toBe(2);
   });
 });
