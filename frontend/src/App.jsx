@@ -55,6 +55,23 @@ function App() {
     };
   }, []);
 
+  // Advanced Metrics
+
+  const totalRecords = responses.length;
+
+  const averageLatency =
+    responses.length === 0
+      ? 0
+      : Math.round(
+          responses.reduce((sum, item) => sum + item.response_time_ms, 0) /
+            responses.length,
+        );
+
+  const latestLatency =
+    responses.length > 0 ? responses[0].response_time_ms : 0;
+
+  const anomalyCount = responses.filter((item) => item.is_anomaly).length;
+
   return (
     <main className="app-shell">
       <section className="hero">
@@ -64,6 +81,28 @@ function App() {
         </div>
 
         <button onClick={triggerManualPing}>Run Manual Ping</button>
+      </section>
+
+      <section className="stats-grid">
+        <div className="stat-card">
+          <span>Total Records</span>
+          <strong>{totalRecords}</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Average Latency</span>
+          <strong>{averageLatency} ms</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Latest Latency</span>
+          <strong>{latestLatency} ms</strong>
+        </div>
+
+        <div className="stat-card">
+          <span>Anomalies</span>
+          <strong>{anomalyCount}</strong>
+        </div>
       </section>
 
       {error && <div className="alert error">{error}</div>}
