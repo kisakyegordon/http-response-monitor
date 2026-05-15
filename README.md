@@ -155,6 +155,6 @@ Environment variable examples are included in:
 
 # Screenshots
 
-![Main Page](./assets/main_page.png)
+![Main Page](./docs/assets/main_page.png)
 
-![Response Table](./assets/table.png)
+![Response Table](./docs/assets/table.png)
