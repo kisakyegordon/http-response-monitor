@@ -22,6 +22,9 @@ function App() {
 
   async function fetchResponses() {
     try {
+      console.log("API_URL", import.meta.env.VITE_API_URL);
+      console.log("SOCKET_URL", import.meta.env.VITE_SOCKET_URL);
+      
       setLoading(true);
       const result = await apiClient.get(`${API_URL}/api/responses?limit=50`);
       setResponses(result.data.data || []);
