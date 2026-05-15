@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import apiClient from "./api/client";
 import { io } from "socket.io-client";
 import {
   LineChart,
@@ -11,7 +11,6 @@ import {
 } from "recharts";
 import "./App.css";
 
-const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
 function App() {
@@ -24,7 +23,7 @@ function App() {
   async function fetchResponses() {
     try {
       setLoading(true);
-      const result = await axios.get(`${API_URL}/api/responses?limit=50`);
+      const result = await apiClient.get(`${API_URL}/api/responses?limit=50`);
       setResponses(result.data.data || []);
       setError("");
     } catch (error) {
@@ -36,7 +35,7 @@ function App() {
 
   async function triggerManualPing() {
     try {
-      await axios.post(`${API_URL}/api/responses/ping`);
+      await apiClient.post(`${API_URL}/api/responses/ping`);
     } catch (error) {
       setError("Manual ping failed");
     }
