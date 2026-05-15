@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const dbRoutes = require("./routes/dbRoutes");
+const httpResponseRoutes = require("./routes/httpResponseRoutes");
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api", dbRoutes);
+app.use("/api", httpResponseRoutes);
 
 module.exports = app;
