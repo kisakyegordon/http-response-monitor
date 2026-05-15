@@ -15,12 +15,14 @@ A full-stack monitoring application that periodically sends randomized JSON payl
 - Live Socket.IO streaming
 - Responsive frontend dashboard
 
-## AI/Monitoring Features
+## Monitoring & Analytics Features
 
-- Rolling averages
-- Z-score anomaly detection
-- Response time forecasting
-- Confidence band visualization
+- Real-time HTTP response monitoring
+- Historical response tracking
+- Rolling response-time averages
+- Threshold-based anomaly detection
+- Live websocket metric streaming
+- Time-series visualization dashboards
 
 ## Engineering Features
 
@@ -63,6 +65,73 @@ A full-stack monitoring application that periodically sends randomized JSON payl
 ---
 
 # Local Development
+
+# Database Setup
+
+## Prerequisites
+
+Ensure PostgreSQL is installed locally.
+
+Recommended version:
+
+- PostgreSQL 14+
+
+---
+
+## Create Database
+
+Open psql or your preferred PostgreSQL client.
+
+```sql
+CREATE DATABASE http_response_monitor;
+```
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the backend directory.
+
+Example:
+
+```env
+PORT=5000
+
+DATABASE_URL=postgresql://postgres:password@localhost:5432/http_response_monitor
+
+CLIENT_URL=http://localhost:5173
+
+HTTPBIN_URL=https://httpbin.org/post
+
+MONITOR_INTERVAL=*/5 * * * *
+```
+
+---
+
+
+## Run Database Migrations
+
+```bash
+npm run migrate
+```
+
+---
+
+
+## Database Schema
+
+### responses
+
+| Column | Type | Description |
+|---|---|---|
+| id | UUID | Primary key |
+| status_code | INTEGER | HTTP status code |
+| response_time_ms | INTEGER | Request duration |
+| payload | JSONB | Request payload |
+| anomaly | BOOLEAN | Whether anomaly detected |
+| created_at | TIMESTAMP | Record timestamp |
+
+---
 
 ## Backend
 
@@ -143,7 +212,6 @@ Environment variable examples are included in:
 
 - HTTPBin availability is assumed to be stable
 - Monitoring interval fixed at 5 minutes
-- Single monitored endpoint for MVP scope
 - Anomaly detection focused on response times only
 - Real-time updates optimized for low-to-medium traffic
 

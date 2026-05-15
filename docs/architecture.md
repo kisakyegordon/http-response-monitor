@@ -8,23 +8,7 @@ The system periodically sends randomized JSON payloads to `httpbin.org/anything`
 
 # High-Level Architecture
 
-```text
-React Frontend
-    ↓ REST API / Socket.IO
-Express Backend
-    ↓
-HTTP Monitor Service
-    ↓
-httpbin.org/anything
-
-Express Backend
-    ↓
-PostgreSQL Database
-
-Express Backend
-    ↓ Socket.IO
-React Frontend
-```
+![Architecture](./assets/arch.png)
 
 ---
 

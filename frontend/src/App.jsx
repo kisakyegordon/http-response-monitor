@@ -14,34 +14,37 @@ import "./App.css";
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
 function App() {
-  const [health, setHealth] = useState(null);
   const [responses, setResponses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [error, setError] = useState("");
 
-  async function fetchResponses() {
-    try {
-      setLoading(true);
-      const result = await apiClient.get(`/api/responses?limit=50`);
-      setResponses(result.data.data || []);
-      setError("");
-    } catch (error) {
-      setError("Unable to load response history");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   async function triggerManualPing() {
     try {
       await apiClient.post(`/api/responses/ping`);
     } catch (error) {
-      setError("Manual ping failed");
+      setError("Manual ping failed: " + error.message);
     }
   }
 
   useEffect(() => {
+    const controller = new AbortController();
+
+    async function fetchResponses() {
+      try {
+        setLoading(true);
+        const result = await apiClient.get(`/api/responses?limit=50`, {
+          signal: controller.signal,
+        });
+        setResponses(result.data.data || []);
+        setError("");
+      } catch (error) {
+        setError("Unable to load response history: " + error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchResponses();
 
     const socket = io(SOCKET_URL);
@@ -59,11 +62,10 @@ function App() {
     });
 
     return () => {
+      controller.abort();
       socket.disconnect();
     };
   }, []);
-
-  // Advanced Metrics
 
   const totalRecords = responses.length;
 
