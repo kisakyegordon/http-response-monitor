@@ -22,9 +22,8 @@ function App() {
 
   async function fetchResponses() {
     try {
-
       setLoading(true);
-      const result = await apiClient.get(`${API_URL}/api/responses?limit=50`);
+      const result = await apiClient.get(`/api/responses?limit=50`);
       setResponses(result.data.data || []);
       setError("");
     } catch (error) {
@@ -36,7 +35,7 @@ function App() {
 
   async function triggerManualPing() {
     try {
-      await apiClient.post(`${API_URL}/api/responses/ping`);
+      await apiClient.post(`/api/responses/ping`);
     } catch (error) {
       setError("Manual ping failed");
     }
