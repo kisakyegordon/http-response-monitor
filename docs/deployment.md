@@ -49,8 +49,8 @@ npm run build
 ## Environment Variables
 
 ```env
-VITE_API_URL=https://your-backend-url.onrender.com
-VITE_SOCKET_URL=https://your-backend-url.onrender.com
+VITE_API_URL=https://http-response-monitor.onrender.com
+VITE_SOCKET_URL=https://http-response-monitor.onrender.com
 ```
 
 ---

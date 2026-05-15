@@ -43,10 +43,35 @@ npm run test:coverage
 
 ---
 
-# Future Testing Improvements
+## Testing Strategy
 
-- Unit tests for HTTP monitor service
-- Mocked HTTPBin integration tests
-- Database integration tests
-- Frontend component tests
-- End-to-end dashboard flow tests
+The monitoring pipeline was identified as the system's most critical component because it powers:
+
+- data ingestion
+- anomaly detection
+- persistence
+- real-time broadcasting
+
+Testing was prioritized around this workflow.
+
+### Unit Tests
+- anomaly calculations
+- payload generation
+- statistical utilities
+
+### Integration Tests
+- API endpoints
+- database persistence
+- monitoring pipeline
+
+### End-to-End Tests
+- dashboard rendering
+- live updates
+- anomaly visualization
+
+### CI Pipeline
+GitHub Actions automatically:
+- installs dependencies
+- runs linting
+- executes test suite
+- generates coverage reports

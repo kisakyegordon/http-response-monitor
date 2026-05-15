@@ -6,21 +6,35 @@ A full-stack monitoring application that periodically sends randomized JSON payl
 
 # Features
 
+## Core Features
+
 - Scheduled HTTP monitoring every 5 minutes
-- Randomized JSON payload generation
+- Real-time dashboard updates
 - Historical response storage
-- Real-time dashboard updates using Socket.IO
-- REST API for response history
-- PostgreSQL persistence
-- Automated testing with Jest + Supertest
-- GitHub Actions CI pipeline
+- REST API endpoints for response history
+- Live Socket.IO streaming
 - Responsive frontend dashboard
+
+## AI/Monitoring Features
+
+- Rolling averages
+- Z-score anomaly detection
+- Response time forecasting
+- Confidence band visualization
+
+## Engineering Features
+
+- CI pipeline with GitHub Actions
+- Automated testing
+- Environment-based configuration
+- Production deployment on Render + Vercel
 
 ---
 
 # Tech Stack
 
 ## Backend
+
 - Node.js
 - Express
 - PostgreSQL
@@ -28,17 +42,20 @@ A full-stack monitoring application that periodically sends randomized JSON payl
 - node-cron
 
 ## Frontend
+
 - React
 - Vite
 - Axios
 - Socket.IO Client
 
 ## Testing & CI
+
 - Jest
 - Supertest
 - GitHub Actions
 
 ## Deployment
+
 - Render
 - Vercel
 - Supabase / Neon PostgreSQL
@@ -116,15 +133,28 @@ Environment variable examples are included in:
 
 # Future Improvements
 
-- Real-time latency charts
-- Anomaly detection
 - Alerting system
-- Advanced filtering
 - Authentication
 - Time-series analytics
 
 ---
 
+## Assumptions
+
+- HTTPBin availability is assumed to be stable
+- Monitoring interval fixed at 5 minutes
+- Single monitored endpoint for MVP scope
+- Anomaly detection focused on response times only
+- Real-time updates optimized for low-to-medium traffic
+
+---
+
+# Deployments
+
+[Live Demo](https://http-response-monitor.vercel.app)
+
 # Screenshots
 
-Screenshots and deployment URLs will be added after deployment.
+![Main Page](./assets/main_page.png)
+
+![Response Table](./assets/table.png)
