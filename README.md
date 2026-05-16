@@ -270,9 +270,9 @@ http://localhost:5173
 
 Returns historical monitoring data.
 
-## GET /api/metrics
+## GET /api/health
 
-Returns rolling averages, anomaly metrics, and forecast data.
+Returns backend and database connection health.
 
 ---
 
