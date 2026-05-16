@@ -1,6 +1,55 @@
 # HTTP Response Monitor
 
-A full-stack monitoring application that periodically sends randomized JSON payloads to `httpbin.org/anything`, stores the responses in PostgreSQL, and displays updates in real time on a dashboard.
+A full-stack monitoring application that periodically sends randomized JSON payloads to `httpbin.org/anything`, stores the responses in PostgreSQL, and displays updates in real time through a live dashboard.
+
+The application includes:
+
+- Real-time monitoring
+- Historical response tracking
+- Anomaly detection
+- Forecasting & rolling averages
+- CI pipeline with automated testing
+- Production deployment
+
+---
+
+# Live Demo
+
+Frontend:
+
+https://http-response-monitor.vercel.app
+
+---
+
+# Screenshots
+
+## Dashboard
+
+![Dashboard](./docs/assets/main_page.png)
+
+## Historical Response Table
+
+![Response Table](./docs/assets/table.png)
+
+---
+
+# Architecture Overview
+
+The system consists of:
+
+- React frontend dashboard
+- Express backend API
+- PostgreSQL database
+- Scheduled monitoring service
+- Socket.IO real-time communication
+
+## High-Level Flow
+
+![Architecture](./docs/assets/arch.png)
+
+Detailed architecture:
+
+[Architecture Documentation](./docs/architecture.md)
 
 ---
 
@@ -9,78 +58,93 @@ A full-stack monitoring application that periodically sends randomized JSON payl
 ## Core Features
 
 - Scheduled HTTP monitoring every 5 minutes
-- Real-time dashboard updates
+- Random JSON payload generation
 - Historical response storage
-- REST API endpoints for response history
-- Live Socket.IO streaming
+- REST API endpoints
+- Real-time dashboard updates using Socket.IO
 - Responsive frontend dashboard
 
-## Monitoring & Analytics Features
+## Monitoring & Analytics
 
-- Real-time HTTP response monitoring
-- Historical response tracking
 - Rolling response-time averages
-- Threshold-based anomaly detection
-- Live websocket metric streaming
-- Time-series visualization dashboards
+- Z-score anomaly detection
+- Response-time forecasting
+- Confidence band visualization
+- Real-time anomaly indicators
+- Historical monitoring trends
 
 ## Engineering Features
 
 - CI pipeline with GitHub Actions
 - Automated testing
+- ESLint integration
 - Environment-based configuration
-- Production deployment on Render + Vercel
+- Production deployment with Render + Vercel
 
 ---
 
-# Tech Stack
+# Technology Decisions
 
-## Backend
+## Backend — Express.js
 
-- Node.js
-- Express
-- PostgreSQL
-- Socket.IO
-- node-cron
+Express was chosen because it is lightweight, flexible, and works well for REST APIs and Socket.IO real-time communication.
 
-## Frontend
+## PostgreSQL
 
-- React
-- Vite
-- Axios
-- Socket.IO Client
+PostgreSQL was selected because monitoring data is structured and relational querying works well for analytics and historical tracking.
 
-## Testing & CI
+## Socket.IO
 
-- Jest
-- Supertest
-- GitHub Actions
+Socket.IO enables efficient real-time updates without requiring frontend polling.
 
-## Deployment
+## React + Vite
 
-- Render
-- Vercel
-- Supabase / Neon PostgreSQL
+React provides a clean component architecture while Vite enables fast local development and optimized production builds.
 
 ---
 
-# Local Development
+# Project Structure
 
-# Database Setup
+```text
+backend/
+  src/
+  tests/
+
+frontend/
+  src/
+  components/
+
+docs/
+.github/
+```
+
+---
+
+# Quick Start
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/kisakyegordon/http-response-monitor
+cd http-response-monitor
+```
+
+---
+
+# Local Development Setup
 
 ## Prerequisites
 
-Ensure PostgreSQL is installed locally.
+Install:
 
-Recommended version:
-
+- Node.js 20+
 - PostgreSQL 14+
 
 ---
 
-## Create Database
+## 1. Create Database
 
-Open psql or your preferred PostgreSQL client.
+Open PostgreSQL:
 
 ```sql
 CREATE DATABASE http_response_monitor;
@@ -88,58 +152,50 @@ CREATE DATABASE http_response_monitor;
 
 ---
 
-## Environment Variables
+## 2. Configure Backend
 
-Create a `.env` file in the backend directory.
+Navigate to backend:
 
-Example:
+```bash
+cd backend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Create environment file:
+
+```bash
+cp .env.example .env
+```
+
+Example `.env`:
 
 ```env
-PORT=5000
+PORT=4000
 
 DATABASE_URL=postgresql://postgres:password@localhost:5432/http_response_monitor
 
 CLIENT_URL=http://localhost:5173
 
-HTTPBIN_URL=https://httpbin.org/post
+HTTPBIN_URL=https://httpbin.org/anything
 
 MONITOR_INTERVAL=*/5 * * * *
 ```
 
----
-
-
-## Run Database Migrations
+Run migrations:
 
 ```bash
 npm run migrate
 ```
 
----
-
-
-## Database Schema
-
-### responses
-
-| Column | Type | Description |
-|---|---|---|
-| id | UUID | Primary key |
-| status_code | INTEGER | HTTP status code |
-| response_time_ms | INTEGER | Request duration |
-| payload | JSONB | Request payload |
-| anomaly | BOOLEAN | Whether anomaly detected |
-| created_at | TIMESTAMP | Record timestamp |
-
----
-
-## Backend
+Start backend:
 
 ```bash
-cd backend
-npm install
-cp .env.example .env
-npm run dev -> ( On intial run, databse migrations will be run)
+npm run dev
 ```
 
 Backend runs on:
@@ -148,12 +204,38 @@ Backend runs on:
 http://localhost:4000
 ```
 
-## Frontend
+---
+
+## 3. Configure Frontend
+
+Navigate to frontend:
 
 ```bash
 cd frontend
+```
+
+Install dependencies:
+
+```bash
 npm install
+```
+
+Create environment file:
+
+```bash
 cp .env.example .env
+```
+
+Example `.env`:
+
+```env
+VITE_API_URL=http://localhost:4000
+VITE_SOCKET_URL=http://localhost:4000
+```
+
+Start frontend:
+
+```bash
 npm run dev
 ```
 
@@ -165,64 +247,225 @@ http://localhost:5173
 
 ---
 
+# Database Schema
+
+## responses
+
+| Column             | Type      | Description                 |
+| ------------------ | --------- | --------------------------- |
+| id                 | UUID      | Primary key                 |
+| status_code        | INTEGER   | HTTP status code            |
+| response_time_ms   | INTEGER   | Request duration            |
+| payload            | JSONB     | Response payload            |
+| anomaly            | BOOLEAN   | Whether anomaly detected    |
+| rolling_average    | FLOAT     | Rolling response average    |
+| forecast_value     | FLOAT     | Predicted response time     |
+| created_at         | TIMESTAMP | Response creation timestamp |
+
+---
+
+# API Endpoints
+
+## GET /api/responses
+
+Returns historical monitoring data.
+
+## GET /api/metrics
+
+Returns rolling averages, anomaly metrics, and forecast data.
+
+---
+
+# Real-Time Features
+
+The backend broadcasts newly collected monitoring data using Socket.IO.
+
+The frontend listens for:
+
+- new monitoring responses
+- anomaly updates
+- rolling average updates
+- forecast changes
+
+This avoids polling and provides live dashboard updates.
+
+---
+
+# Anomaly Detection
+
+The application includes a lightweight anomaly detection system.
+
+Features:
+
+- 24-hour rolling statistics window
+- Rolling mean calculation
+- Standard deviation calculation
+- Z-score anomaly detection
+- Forecast generation
+- Confidence bands
+
+Anomalies are identified when:
+
+- response times significantly exceed the rolling average
+- z-score thresholds are exceeded
+
+Detailed implementation:
+
+[Anomaly Detection Documentation](./docs/anomaly-detection.md)
+
+---
+
+# Testing Strategy
+
+Core functionality selected for testing:
+
+- HTTP monitoring service
+- Anomaly detection logic
+- REST API endpoints
+
+These components were prioritized because they contain the primary business logic and data-processing behavior of the system.
+
+## Test Categories
+
+### Unit Tests
+
+- Monitoring service logic
+- Anomaly calculations
+- Forecast calculations
+
+### Integration Tests
+
+- API endpoints
+- Database interaction
+- Socket.IO event flow
+
+### Frontend Tests
+
+- Dashboard rendering
+- Table rendering
+- Real-time update behavior
+
+---
+
 # Running Tests
 
-## Backend tests
+## Backend Tests
 
 ```bash
 cd backend
 npm test
 ```
 
-## Coverage report
+## Coverage Report
 
 ```bash
 npm run test:coverage
 ```
 
----
+## Frontend Linting
 
-# Documentation
-
-- [Architecture](docs/architecture.md)
-- [Deployment](docs/deployment.md)
-- [Testing Strategy](docs/testing.md)
-- [Tradeoffs & Decisions](docs/tradeoffs.md)
+```bash
+cd frontend
+npm run lint
+```
 
 ---
 
-# Environment Variables
+# CI Pipeline
 
-Environment variable examples are included in:
+GitHub Actions pipeline includes:
 
-- `backend/.env.example`
-- `frontend/.env.example`
+- Dependency installation
+- ESLint checks
+- Backend tests
+- Coverage generation
+- Frontend build validation
+
+Workflow file:
+
+```text
+.github/workflows/ci.yml
+```
+
+---
+
+# Deployment
+
+## Frontend
+
+Deployed on:
+
+- Vercel
+
+## Backend
+
+Deployed on:
+
+- Render
+
+## Database
+
+Hosted on:
+
+- Supabase PostgreSQL
+
+Detailed deployment steps:
+
+[Deployment Documentation](./docs/deployment.md)
+
+---
+
+# Tradeoffs & Assumptions
+
+## Tradeoffs
+
+- PostgreSQL was used instead of a dedicated time-series database to reduce infrastructure complexity.
+- Forecasting uses lightweight rolling averages instead of machine-learning models to keep calculations efficient.
+- Socket.IO broadcasting is in-memory and not horizontally scaled with Redis Pub/Sub.
+
+## Assumptions
+
+- `httpbin.org` availability is assumed to be stable.
+- Monitoring interval remains fixed at 5 minutes.
+- Anomaly detection focuses primarily on response times.
+- The system is optimized for low-to-medium traffic volumes.
 
 ---
 
 # Future Improvements
 
-- Alerting system
-- Authentication
-- Time-series analytics
+- Redis-backed websocket scaling
+- Slack/email alert integrations
+- User-configurable monitoring intervals
+- Multi-endpoint monitoring
+- Advanced forecasting models
+- Persistent anomaly alert history
+- Authentication & user management
 
 ---
 
-## Assumptions
+# Additional Documentation
 
-- HTTPBin availability is assumed to be stable
-- Monitoring interval fixed at 5 minutes
-- Anomaly detection focused on response times only
-- Real-time updates optimized for low-to-medium traffic
+- [Architecture](./docs/architecture.md)
+- [Deployment](./docs/deployment.md)
+- [Testing Strategy](./docs/testing.md)
+- [Tradeoffs & Decisions](./docs/tradeoffs.md)
+- [Anomaly Detection](./docs/anomaly-detection.md)
 
 ---
 
-# Deployments
+# Assignment Coverage
 
-[Live Demo](https://http-response-monitor.vercel.app)
+This project implements:
 
-# Screenshots
+- scheduled monitoring
+- real-time updates
+- historical response storage
+- REST APIs
+- CI/CD pipeline
+- anomaly detection
+- forecasting
+- deployment documentation
+- testing strategy
 
-![Main Page](./docs/assets/main_page.png)
-
-![Response Table](./docs/assets/table.png)
+As described in the take-home requirements.
